@@ -1,10 +1,6 @@
-import { Context } from "../../context/Context"
 import { SpineLocator } from "../../spine/locationResolver"
-import { SpineItemLocator } from "../../spineItem/locationResolver"
 import { SpineItemManager } from "../../spineItemManager"
 import { InternalNavigationEntry } from "../InternalNavigator"
-import { getNavigationForUrl } from "../resolvers/getNavigationForUrl"
-import { getNavigationFromSpineItemPosition } from "../resolvers/getNavigationFromSpineItemPosition"
 import { NavigationResolver } from "../resolvers/NavigationResolver"
 
 export const restoreNavigationForControlledPageTurnMode = ({
@@ -12,15 +8,11 @@ export const restoreNavigationForControlledPageTurnMode = ({
   navigation,
   navigationResolver,
   spineItemManager,
-  spineItemLocator,
-  context,
 }: {
-  context: Context
   navigation: InternalNavigationEntry
   spineLocator: SpineLocator
   navigationResolver: NavigationResolver
   spineItemManager: SpineItemManager
-  spineItemLocator: SpineItemLocator
 }) => {
   const spineItem = spineItemManager.get(navigation.spineItem)
 
@@ -45,13 +37,7 @@ export const restoreNavigationForControlledPageTurnMode = ({
    * restore from it first.
    */
   if (navigation.url !== undefined) {
-    const urlResult = getNavigationForUrl({
-      context,
-      navigationResolver,
-      spineItemManager,
-      spineLocator,
-      url: navigation.url,
-    })
+    const urlResult = navigationResolver.getNavigationForUrl(navigation.url)
 
     if (urlResult) {
       return urlResult.position
@@ -65,11 +51,9 @@ export const restoreNavigationForControlledPageTurnMode = ({
         y: 0,
       }
 
-      return getNavigationFromSpineItemPosition({
+      return navigationResolver.getNavigationFromSpineItemPosition({
         spineItem,
-        spineItemLocator,
         spineItemPosition,
-        spineLocator,
       })
     }
 

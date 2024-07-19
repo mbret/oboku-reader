@@ -48,8 +48,8 @@ const report = Report.namespace(NAMESPACE)
 
 /**
  * Priority of info taken for restoration:
- * - complete cfi
  * - URL
+ * - complete cfi
  * - incomplete cfi
  * - spine item position
  * - spine item (fallback)
@@ -147,10 +147,7 @@ export class InternalNavigator extends DestroyableClass {
          * as much information as needed to reduce later lookup
          */
         withOrGuessUrlInfo({
-          context,
           navigationResolver,
-          spineItemManager,
-          spineLocator,
         }),
         withOrGuessDirection({ context, settings }),
         withOrGuessSpineItemInfo({

@@ -17,56 +17,6 @@ export const createNavigationResolver = ({
 }) => {
   const spineItemLocator = createSpineItemLocator({ context, settings })
 
-  const getNavigationForLeftPage = (
-    position: UnsafeSpineItemPosition,
-    spineItem: SpineItem,
-  ): SafeSpineItemPosition => {
-    let nextPotentialPosition = {
-      x: position.x - context.getPageSize().width,
-      y: position.y,
-    }
-
-    if (spineItem.isUsingVerticalWriting()) {
-      nextPotentialPosition = {
-        x: position.x,
-        y: position.y + context.getPageSize().height,
-      }
-    }
-
-    const navigationPosition =
-      spineItemLocator.getSpineItemClosestPositionFromUnsafePosition(
-        nextPotentialPosition,
-        spineItem,
-      )
-
-    return navigationPosition
-  }
-
-  const getNavigationForRightPage = (
-    position: UnsafeSpineItemPosition,
-    spineItem: SpineItem,
-  ): SafeSpineItemPosition => {
-    let nextPotentialPosition = {
-      x: position.x + context.getPageSize().width,
-      y: position.y,
-    }
-
-    if (spineItem.isUsingVerticalWriting()) {
-      nextPotentialPosition = {
-        x: position.x,
-        y: position.y - context.getPageSize().height,
-      }
-    }
-
-    const navigationPosition =
-      spineItemLocator.getSpineItemClosestPositionFromUnsafePosition(
-        nextPotentialPosition,
-        spineItem,
-      )
-
-    return navigationPosition
-  }
-
   const getNavigationForLastPage = (
     spineItem: SpineItem,
   ): SafeSpineItemPosition => {
@@ -117,8 +67,6 @@ export const createNavigationResolver = ({
   }
 
   return {
-    getNavigationForLeftPage,
-    getNavigationForRightPage,
     getNavigationForLastPage,
     getNavigationForPage,
     getNavigationForPosition,

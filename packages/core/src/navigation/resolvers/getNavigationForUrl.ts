@@ -1,10 +1,10 @@
 import { Context } from "../../context/Context"
-import { NavigationResolver } from "./NavigationResolver"
 import { ViewportPosition } from "../ViewportNavigator"
 import { getClosestValidOffsetFromApproximateOffsetInPages } from "../../pagination/helpers"
 import { SpineLocator } from "../../spine/locationResolver"
 import { SpineItem } from "../../spineItem/createSpineItem"
 import { SpineItemManager } from "../../spineItemManager"
+import { getAdjustedPositionForSpread } from "./getAdjustedPositionForSpread"
 
 const getSpineItemOffsetFromAnchor = ({
   anchor,
@@ -58,14 +58,16 @@ const getNavigationForAnchor = ({
   anchor,
   spineItem,
   spineLocator,
-  navigationResolver,
   context,
+  pageSizeWidth,
+  visibleAreaRectWidth,
 }: {
   anchor: string
   spineItem: SpineItem
   spineLocator: SpineLocator
-  navigationResolver: NavigationResolver
   context: Context
+  pageSizeWidth: number
+  visibleAreaRectWidth: number
 }) => {
   const position = getSpinePositionFromSpineItemAnchor({
     anchor,
@@ -74,21 +76,27 @@ const getNavigationForAnchor = ({
     spineLocator,
   })
 
-  return navigationResolver.getAdjustedPositionForSpread(position)
+  return getAdjustedPositionForSpread({
+    position,
+    pageSizeWidth,
+    visibleAreaRectWidth,
+  })
 }
 
 export const getNavigationForUrl = ({
   context,
-  navigationResolver,
   spineItemManager,
   spineLocator,
   url,
+  pageSizeWidth,
+  visibleAreaRectWidth,
 }: {
   url: string | URL
   spineItemManager: SpineItemManager
   spineLocator: SpineLocator
   context: Context
-  navigationResolver: NavigationResolver
+  pageSizeWidth: number
+  visibleAreaRectWidth: number
 }): { position: ViewportPosition; spineItemId: string } | undefined => {
   try {
     const validUrl = url instanceof URL ? url : new URL(url)
@@ -105,12 +113,17 @@ export const getNavigationForUrl = ({
           anchor: validUrl.hash,
           spineItem,
           context,
-          navigationResolver,
           spineLocator,
+          pageSizeWidth,
+          visibleAreaRectWidth,
         })
 
         return {
-          position: navigationResolver.getAdjustedPositionForSpread(position),
+          position: getAdjustedPositionForSpread({
+            position,
+            pageSizeWidth,
+            visibleAreaRectWidth,
+          }),
           spineItemId: existingSpineItem.id,
         }
       }

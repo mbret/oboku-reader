@@ -198,8 +198,6 @@ export const restorePosition = ({
   settings,
   spineLocator,
   navigationResolver,
-  spineItemLocator,
-  context,
 }: {
   spineLocator: SpineLocator
   settings: ReaderSettingsManager
@@ -224,7 +222,5 @@ export const restorePosition = ({
     spineLocator,
     navigationResolver,
     spineItemManager,
-    spineItemLocator,
-    context,
   })
 }

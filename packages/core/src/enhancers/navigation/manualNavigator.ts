@@ -2,6 +2,8 @@ import { Reader } from "../../reader"
 import { Report } from "../../report"
 import { ViewportPosition } from "../../navigation/ViewportNavigator"
 import { getNavigationForSpineItemPage } from "./resolvers/getNavigationForSpineItemPage"
+import { getNavigationForRightPage } from "./resolvers/getNavigationForRightPage"
+import { getNavigationForLeftPage } from "./resolvers/getNavigationForLeftPage"
 
 export class ManualNavigator {
   movingLastDelta = { x: 0, y: 0 }
@@ -11,26 +13,46 @@ export class ManualNavigator {
   constructor(protected reader: Reader) {}
 
   turnRight() {
-    const navigation =
-      this.reader.navigation.navigationResolver.getNavigationForRightPage(
-        this.reader.navigation.getNavigation().position,
-      )
+    const navigation = this.reader.navigation.getNavigation()
+    const spineItem = this.reader.spineItemManager.get(navigation.spineItem)
+
+    if (!spineItem) return
+
+    const position = getNavigationForRightPage({
+      context: this.reader.context,
+      navigationResolver: this.reader.navigation.navigationResolver,
+      position: navigation.position,
+      computedPageTurnDirection:
+        this.reader.settings.settings.computedPageTurnDirection,
+      spineItem,
+      spineItemManager: this.reader.spineItemManager,
+      spineLocator: this.reader.spine.locator,
+    })
 
     return this.reader.navigation.navigate({
-      animation: "turn",
-      position: navigation,
+      position,
     })
   }
 
   turnLeft() {
-    const navigation =
-      this.reader.navigation.navigationResolver.getNavigationForLeftPage(
-        this.reader.navigation.getNavigation().position,
-      )
+    const navigation = this.reader.navigation.getNavigation()
+    const spineItem = this.reader.spineItemManager.get(navigation.spineItem)
+
+    if (!spineItem) return
+
+    const position = getNavigationForLeftPage({
+      context: this.reader.context,
+      navigationResolver: this.reader.navigation.navigationResolver,
+      position: navigation.position,
+      computedPageTurnDirection:
+        this.reader.settings.settings.computedPageTurnDirection,
+      spineItem,
+      spineItemManager: this.reader.spineItemManager,
+      spineLocator: this.reader.spine.locator,
+    })
 
     return this.reader.navigation.navigate({
-      animation: "turn",
-      position: navigation,
+      position,
     })
   }
 
