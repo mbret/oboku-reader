@@ -33,7 +33,7 @@ export const createArchiveFromText = async (
     `
 
   const archive: Archive = {
-    filename: `content.txt`,
+    filename: `comicinfo.xml`,
     files: [
       {
         dir: false,
@@ -46,8 +46,8 @@ export const createArchiveFromText = async (
       },
       {
         dir: false,
-        basename: getUriBasename(`p01.txt`),
-        uri: `p01.txt`,
+        basename: getUriBasename(`comicinfo.xml`),
+        uri: `comicinfo.xml`,
         blob: async () => {
           if (typeof content === `string`) return new Blob([content])
           return content

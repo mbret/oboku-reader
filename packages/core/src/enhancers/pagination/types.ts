@@ -1,4 +1,4 @@
-import { PaginationInfo } from "../../pagination/types"
+import { PaginationInfo } from "../../pagination/Pagination"
 import { Reader } from "../../reader"
 import { progressionEnhancer } from "../progression"
 import { EnhancerOutput } from "../types/enhancer"

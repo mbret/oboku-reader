@@ -8,7 +8,6 @@ import { theme } from "./theme/theme"
 import { ReaderInstance } from "./types"
 import { Home as ClassicHome } from "./classic/Home"
 import { isZoomingState } from "./state"
-import { ErrorBoundary } from "./common/ErrorBoundary"
 import { useReader } from "./reader/useReader"
 import { Subscribe } from "@react-rxjs/core"
 import { Reader } from "./reader/Reader"
@@ -30,9 +29,7 @@ export const App = memo(() => {
                 <Route
                   path="/reader/:url"
                   element={
-                    <ErrorBoundary>
                       <Reader onReader={setReader} />
-                    </ErrorBoundary>
                   }
                 />
                 <Route path="/books" element={<ClassicHome />} />

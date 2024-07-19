@@ -319,3 +319,5 @@ export const isTouchEvent = (event: Event): event is TouchEvent => {
 
   return false
 }
+
+export const noopElement = () => document.createElement("div")

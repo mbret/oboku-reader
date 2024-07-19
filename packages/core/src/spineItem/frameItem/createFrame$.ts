@@ -10,7 +10,14 @@ export const createFrame$ = Report.measurePerformance(
     const frame = document.createElement(`iframe`)
     frame.frameBorder = `no`
     frame.tabIndex = 0
-    frame.setAttribute(`sandbox`, `allow-same-origin allow-scripts`)
+    frame.setAttribute(
+      `sandbox`,
+      `
+    allow-same-origin 
+    allow-scripts 
+    allow-top-navigation-to-custom-protocols
+  `,
+    )
     frame.scrolling = `no`
     frame.style.cssText = `
     visibility: hidden;

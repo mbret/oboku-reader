@@ -1,18 +1,27 @@
 import { Context } from "../context/Context"
-import {
-  getItemOffsetFromPageIndex,
-  getClosestValidOffsetFromApproximateOffsetInPages,
-  calculateNumberOfPagesForItem,
-} from "../pagination/pagination"
 import { SpineItem } from "./createSpineItem"
 import { getFirstVisibleNodeForViewport, getRangeFromNode } from "../utils/dom"
-import { SpineItemPosition, UnsafeSpineItemPosition } from "./types"
+import { SafeSpineItemPosition, UnsafeSpineItemPosition } from "./types"
+import { ReaderSettingsManager } from "../settings/ReaderSettingsManager"
+import {
+  calculateNumberOfPagesForItem,
+  getItemOffsetFromPageIndex,
+  getClosestValidOffsetFromApproximateOffsetInPages,
+} from "../pagination/helpers"
 
-export const createLocationResolver = ({ context }: { context: Context }) => {
+export type SpineItemLocator = ReturnType<typeof createSpineItemLocator>
+
+export const createSpineItemLocator = ({
+  context,
+  settings,
+}: {
+  context: Context
+  settings: ReaderSettingsManager
+}) => {
   const getSafePosition = (
     unsafeSpineItemPosition: UnsafeSpineItemPosition,
     spineItem: SpineItem,
-  ): SpineItemPosition => ({
+  ): SafeSpineItemPosition => ({
     x: Math.min(
       spineItem.getElementDimensions().width,
       Math.max(0, unsafeSpineItemPosition.x),
@@ -23,10 +32,33 @@ export const createLocationResolver = ({ context }: { context: Context }) => {
     ),
   })
 
+  const getSpineItemNumberOfPages = ({
+    spineItem,
+  }: {
+    spineItem: SpineItem
+  }) => {
+    // pre-paginated always are only one page
+    // if (!spineItem.isReflowable) return 1
+
+    const isUsingVerticalWriting = spineItem.isUsingVerticalWriting()
+    const { width, height } = spineItem.getElementDimensions()
+    const { pageTurnDirection, pageTurnMode } = settings.settings
+
+    if (pageTurnDirection === `vertical` && pageTurnMode === `scrollable`) {
+      return 1
+    }
+
+    if (isUsingVerticalWriting || pageTurnDirection === `vertical`) {
+      return calculateNumberOfPagesForItem(height, context.getPageSize().height)
+    }
+
+    return calculateNumberOfPagesForItem(width, context.getPageSize().width)
+  }
+
   const getSpineItemPositionFromPageIndex = (
     pageIndex: number,
     spineItem: SpineItem,
-  ): SpineItemPosition => {
+  ): SafeSpineItemPosition => {
     const { width: itemWidth, height: itemHeight } =
       spineItem.getElementDimensions()
 
@@ -71,8 +103,8 @@ export const createLocationResolver = ({ context }: { context: Context }) => {
     position: UnsafeSpineItemPosition,
     spineItem: SpineItem,
   ) => {
-    const { width: itemWidth, height: itemHeight } =
-      spineItem.getElementDimensions()
+    const { width: itemWidth } = spineItem.getElementDimensions()
+
     const pageWidth = context.getPageSize().width
     const pageHeight = context.getPageSize().height
 
@@ -82,37 +114,15 @@ export const createLocationResolver = ({ context }: { context: Context }) => {
       ? itemWidth - safePosition.x - context.getPageSize().width
       : safePosition.x
 
-    if (spineItem.isUsingVerticalWriting()) {
-      const numberOfPages = calculateNumberOfPagesForItem(
-        itemHeight,
-        pageHeight,
-      )
+    const numberOfPages = getSpineItemNumberOfPages({ spineItem })
 
+    if (spineItem.isUsingVerticalWriting()) {
       return getPageFromOffset(position.y, pageHeight, numberOfPages)
     } else {
-      const numberOfPages = calculateNumberOfPagesForItem(itemWidth, pageWidth)
       const pageIndex = getPageFromOffset(offset, pageWidth, numberOfPages)
 
       return pageIndex
     }
-  }
-
-  const getSpineItemOffsetFromAnchor = (
-    anchor: string,
-    spineItem: SpineItem,
-  ) => {
-    const itemWidth = spineItem.getElementDimensions()?.width || 0
-    const pageWidth = context.getPageSize().width
-    const anchorElementBoundingRect =
-      spineItem.getBoundingRectOfElementFromSelector(anchor)
-
-    const offsetOfAnchor = anchorElementBoundingRect?.x || 0
-
-    return getClosestValidOffsetFromApproximateOffsetInPages(
-      offsetOfAnchor,
-      pageWidth,
-      itemWidth,
-    )
   }
 
   const getSpineItemPositionFromNode = (
@@ -241,13 +251,50 @@ export const createLocationResolver = ({ context }: { context: Context }) => {
     )
   }
 
+  const isPageVisibleForSpineItemPosition = ({
+    pageSpineItemPosition,
+    threshold,
+    spineItemPosition,
+  }: {
+    pageSpineItemPosition: SafeSpineItemPosition
+    spineItemPosition: UnsafeSpineItemPosition
+    threshold: number
+  }) => {
+    const { x: left, y: top } = pageSpineItemPosition
+    const right = left + (context.getPageSize().width - 1)
+    const bottom = top + (context.getPageSize().height - 1)
+    const pageWidth = context.getPageSize().width
+    const pageHeight = context.getPageSize().height
+
+    const viewportLeft = spineItemPosition.x
+    const viewportRight =
+      spineItemPosition.x + (context.state.visibleAreaRect.width - 1)
+    const viewportTop = spineItemPosition.y
+    const viewportBottom =
+      spineItemPosition.y + (context.state.visibleAreaRect.height - 1)
+
+    const visibleWidth =
+      Math.min(right, viewportRight) - Math.max(left, viewportLeft)
+    const horizontalVisiblePercentage = visibleWidth / pageWidth
+
+    const visibleHeight =
+      Math.min(bottom, viewportBottom) - Math.max(top, viewportTop)
+    const verticalVisiblePercentage = visibleHeight / pageHeight
+
+    return (
+      horizontalVisiblePercentage >= threshold &&
+      verticalVisiblePercentage >= threshold
+    )
+  }
+
   return {
     getSpineItemPositionFromNode,
     getSpineItemPositionFromPageIndex,
-    getSpineItemOffsetFromAnchor,
     getSpineItemPageIndexFromPosition,
     getSpineItemPageIndexFromNode,
     getSpineItemClosestPositionFromUnsafePosition,
     getFirstNodeOrRangeAtPage,
+    getSpineItemNumberOfPages,
+    isPageVisibleForSpineItemPosition,
   }
 }

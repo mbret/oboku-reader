@@ -44,7 +44,7 @@ export const createPanMoveListener = (reader: Reader, hammerManager: HammerManag
             } else {
               if (normalizedEvent && `x` in normalizedEvent) {
                 movingStartOffsets = { x: normalizedEvent.x, y: normalizedEvent.y }
-                reader?.viewportNavigator.moveTo({ x: 0, y: 0 }, { start: true })
+                reader?.navigation.moveTo({ x: 0, y: 0 }, { start: true })
               }
             }
           }
@@ -53,7 +53,7 @@ export const createPanMoveListener = (reader: Reader, hammerManager: HammerManag
             if (reader?.zoom.isZooming()) {
               reader.zoom.move({ x: ev.deltaX, y: ev.deltaY }, { isFirst: false, isLast: false })
             } else {
-              reader?.viewportNavigator.moveTo({ x: deltaX, y: deltaY })
+              reader?.navigation.moveTo({ x: deltaX, y: deltaY })
             }
           }
 
@@ -63,7 +63,7 @@ export const createPanMoveListener = (reader: Reader, hammerManager: HammerManag
               reader.zoom.move(undefined, { isFirst: false, isLast: true })
             } else {
               if (movingHasStarted) {
-                reader?.viewportNavigator.moveTo({ x: deltaX, y: deltaY }, { final: true })
+                reader?.navigation.moveTo({ x: deltaX, y: deltaY }, { final: true })
               }
             }
 

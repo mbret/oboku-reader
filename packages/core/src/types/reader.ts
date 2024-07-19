@@ -1,9 +1,9 @@
 import { Observable } from "rxjs"
 import { Spine } from "./Spine"
-import { Pagination } from "../pagination/pagination"
+import { Pagination } from "../pagination/Pagination"
 import { Manifest } from "@prose-reader/shared"
 import { SpineItemManager } from "../spineItemManager"
-import { ViewportNavigator } from "../viewportNavigator/viewportNavigator"
+import { Navigator } from "../navigation/Navigator"
 import { ComputedCoreSettings, CoreInputSettings } from "../settings/types"
 import { Context } from "../context/Context"
 import { HookManager } from "../hooks/HookManager"
@@ -20,7 +20,16 @@ export type ReaderInternal = {
   context: Context
   spine: Spine
   spineItemManager: SpineItemManager
-  viewportNavigator: ViewportNavigator
+  navigation: {
+    viewportFree$: Navigator["viewportFree$"]
+    viewportBusy$: Navigator["viewportBusy$"]
+    getCurrentViewportPosition: Navigator["getCurrentViewportPosition"]
+    navigate: Navigator["navigate"]
+    getNavigation: Navigator["getNavigation"]
+    getElement: Navigator["getElement"]
+    lock: Navigator["lock"]
+    navigationResolver: Navigator["navigationResolver"]
+  }
   settings: SettingsInterface<
     CoreInputSettings,
     CoreInputSettings & ComputedCoreSettings
@@ -29,7 +38,10 @@ export type ReaderInternal = {
   layout: () => void
   load: (manifest: Manifest, loadOptions: LoadOptions) => void
   destroy: () => void
-  pagination: Pagination
+  pagination: {
+    paginationInfo$: Pagination["pagination$"]
+    getPaginationInfo: Pagination["getPaginationInfo"]
+  }
   element$: Observable<HTMLElement>
   $: {
     state$: Observable<{

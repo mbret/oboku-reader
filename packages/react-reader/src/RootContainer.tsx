@@ -1,7 +1,7 @@
-import React from "react"
+import React, { memo } from "react"
 import { ReactNode } from "react"
 
-export const RootContainer = ({ children }: { children: ReactNode }) => {
+export const RootContainer = memo(function RootContainer({ children }: { children: ReactNode }) {
   return (
     <div
       style={{
@@ -15,4 +15,4 @@ export const RootContainer = ({ children }: { children: ReactNode }) => {
       {children}
     </div>
   )
-}
+})

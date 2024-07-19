@@ -47,6 +47,14 @@ const createReport = (namespace?: string) => ({
       else console.warn(wrap(ROOT_NAMESPACE), ...data)
     }
   },
+  info: (...data: any[]) => {
+    if (getWindow()?.__PROSE_READER_DEBUG) {
+      // eslint-disable-next-line no-console
+      if (namespace)
+        console.info(wrap(ROOT_NAMESPACE), wrap(namespace), ...data)
+      else console.info(wrap(ROOT_NAMESPACE), ...data)
+    }
+  },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: (...data: any[]) => {
     // eslint-disable-next-line no-console

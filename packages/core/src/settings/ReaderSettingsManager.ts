@@ -95,7 +95,8 @@ export class ReaderSettingsManager extends SettingsManager<
       computedSettings.computedPageTurnAnimationDuration =
         settings.pageTurnAnimationDuration !== undefined
           ? settings.pageTurnAnimationDuration
-          : 300
+          // @todo remove
+          : 2000
     }
 
     return computedSettings

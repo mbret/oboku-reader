@@ -7,48 +7,14 @@ import {
   distinctUntilChanged,
   startWith,
 } from "rxjs"
-import { calculateNumberOfPagesForItem } from "../../pagination/pagination"
 import { Reader } from "../../reader"
-import { SpineItem } from "../../spineItem/createSpineItem"
 import { isShallowEqual } from "../../utils/objects"
-
-export const getSpineItemNumberOfPages = ({
-  spineItem,
-  reader,
-}: {
-  spineItem: SpineItem
-  reader: Reader
-}) => {
-  // pre-paginated always are only one page
-  // if (!spineItem.isReflowable) return 1
-
-  const writingMode = spineItem.spineItemFrame.getWritingMode()
-  const { width, height } = spineItem.getElementDimensions()
-  const settings = reader.settings.settings
-
-  if (
-    settings.pageTurnDirection === `vertical` &&
-    settings.pageTurnMode === `scrollable`
-  ) {
-    return 1
-  }
-
-  if (writingMode === `vertical-rl`) {
-    return calculateNumberOfPagesForItem(
-      height,
-      reader.context.getPageSize().height,
-    )
-  }
-
-  return calculateNumberOfPagesForItem(
-    width,
-    reader.context.getPageSize().width,
-  )
-}
 
 export const getNumberOfPagesForAllSpineItems = (reader: Reader) =>
   reader.spineItemManager.getAll().map((item) => {
-    return getSpineItemNumberOfPages({ spineItem: item, reader })
+    return reader.spine.spineItemLocator.getSpineItemNumberOfPages({
+      spineItem: item,
+    })
   }, 0)
 
 export const trackTotalPages = (reader: Reader) => {

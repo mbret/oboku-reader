@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react"
 import { useEffect } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { useGestureHandler } from "./useGestureHandler"
+import { useClassicGestureHandler } from "./useClassicGestureHandler"
 import { Reader as ReactReader } from "@prose-reader/react"
 import { Manifest } from "@prose-reader/core"
 import { QuickMenu } from "../reader/QuickMenu"
@@ -37,7 +37,6 @@ export const Reader = ({
 }) => {
   const { url = `` } = useParams<`url`>()
   const { reader } = useReader()
-  const setManifestState = useSetRecoilState(manifestState)
   const [container, setContainer] = useState<HTMLElement | undefined>(undefined)
   const [bookReady, setBookReady] = useRecoilState(bookReadyState)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -48,18 +47,18 @@ export const Reader = ({
     // fontScale: parseFloat(localStorage.getItem(`fontScale`) || `1`),
     // lineHeight: parseFloat(localStorage.getItem(`lineHeight`) || ``) || undefined,
     // theme: undefined,
-    pageTurnAnimation: `fade`,
+    pageTurnAnimation: `slide`,
     layoutAutoResize: `container`,
-    numberOfAdjacentSpineItemToPreLoad: 0,
-    hammerGesture: {
-      enableFontScalePinch: true,
-      fontScaleMax: FONT_SCALE_MAX,
-      fontScaleMin: FONT_SCALE_MIN
-    }
+    numberOfAdjacentSpineItemToPreLoad: 0
+    // hammerGesture: {
+    //   enableFontScalePinch: true,
+    //   fontScaleMax: FONT_SCALE_MAX,
+    //   fontScaleMin: FONT_SCALE_MIN
+    // }
   })
   const [readerLoadOptions, setReaderLoadOptions] = useState<ReactReaderProps["loadOptions"]>()
 
-  useGestureHandler(container)
+  useClassicGestureHandler(container)
   useBookmarks(reader, url)
 
   const onReady = useCallback(() => {
@@ -86,12 +85,6 @@ export const Reader = ({
       linksSubscription?.unsubscribe()
     }
   }, [reader])
-
-  useEffect(() => {
-    if (!reader || !manifest) return
-
-    setManifestState(manifest)
-  }, [setManifestState, reader, manifest])
 
   useEffect(() => {
     if (manifest) {

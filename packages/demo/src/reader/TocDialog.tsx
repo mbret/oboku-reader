@@ -1,15 +1,16 @@
 import { CheckCircleIcon } from "@chakra-ui/icons"
 import { List, ListIcon, ListItem, Text } from "@chakra-ui/react"
 import React, { useEffect, useState } from "react"
-import { useRecoilValue } from "recoil"
-import { manifestState } from "../state"
 import { FullScreenModal } from "../common/FullScreenModal"
 import { useReader } from "./useReader"
 import { usePagination } from "./state"
+import { useObserve } from "reactjrx"
+import { NEVER } from "rxjs"
 
 export const TocDialog = ({ onExit, isOpen }: { onExit: () => void; isOpen: boolean }) => {
-  const { nav, renditionLayout } = useRecoilValue(manifestState) || {}
   const { reader$, reader } = useReader()
+  const { manifest } = useObserve(reader?.context.state$ ?? NEVER) ?? {}
+  const { nav, renditionLayout } = manifest ?? {}
   const pagination = usePagination(reader$)
   const toc = nav?.toc || []
   const { beginSpineItemIndex, beginPageIndexInSpineItem } = pagination ?? {}
@@ -26,7 +27,7 @@ export const TocDialog = ({ onExit, isOpen }: { onExit: () => void; isOpen: bool
         }}
         onClick={() => {
           onExit()
-          reader?.viewportNavigator.goToUrl(tocItem.href)
+          reader?.navigation.goToUrl(tocItem.href)
         }}
       >
         {currentSubChapter?.path === tocItem.path && <ListIcon as={CheckCircleIcon} />}

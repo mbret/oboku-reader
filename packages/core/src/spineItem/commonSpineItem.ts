@@ -8,6 +8,7 @@ import { map, withLatestFrom } from "rxjs/operators"
 import { createFrameManipulator } from "./frameItem/createFrameManipulator"
 import { ReaderSettingsManager } from "../settings/ReaderSettingsManager"
 import { HookManager } from "../hooks/HookManager"
+import { detectMimeTypeFromName } from "@prose-reader/shared"
 
 export const createCommonSpineItem = ({
   item,
@@ -77,7 +78,11 @@ export const createCommonSpineItem = ({
    * If an image is detected for reflowable for example we may want to display
    * things accordingly.
    */
-  const isImageType = () => !!item.mediaType?.startsWith(`image/`)
+  const isImageType = () => {
+    const mimeType = item.mediaType ?? detectMimeTypeFromName(item.href)
+
+    return !!mimeType?.startsWith(`image/`)
+  }
 
   const injectStyle = (cssText: string) => {
     spineItemFrame.getManipulableFrame()?.removeStyle(`prose-reader-css`)
@@ -376,6 +381,7 @@ const createContainerElement = (
   element.style.cssText = `
     position: absolute;
     overflow: hidden;
+    border: 1px solid red;
   `
 
   hookManager.execute("item.onBeforeContainerCreated", undefined, { element })

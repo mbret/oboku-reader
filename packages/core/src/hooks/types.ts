@@ -74,7 +74,7 @@ export type CoreHook =
    * Only available during reader creation
    */
   | {
-      name: `viewportNavigator.onBeforeContainerCreated`
+      name: `navigator.onBeforeContainerCreated`
       runFn: (params: { element: HTMLElement }) => void
     }
 // | {

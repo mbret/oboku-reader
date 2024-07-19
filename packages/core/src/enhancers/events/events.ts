@@ -1,9 +1,9 @@
 import { BehaviorSubject, takeUntil, tap } from "rxjs"
-import { attachOriginalFrameEventToDocumentEvent } from "../../frames"
 import { isMouseEvent, isPointerEvent } from "../../utils/dom"
 import { EnhancerOutput, RootEnhancer } from "../types/enhancer"
 import { createNormalizeEventForViewport } from "./normalizeEventForViewport"
 import { createIframeEventBridgeElement } from "./createIframeEventBridgeElement"
+import { attachOriginalFrameEventToDocumentEvent } from "./frames"
 
 const pointerEvents = [
   `pointercancel` as const,
@@ -14,22 +14,22 @@ const pointerEvents = [
   `pointerout` as const,
   `pointerover` as const,
   `pointerup` as const,
-  `touchstart` as const,
-  `touchend` as const,
+  // `touchstart` as const,
+  // `touchend` as const,
 ]
 
 const mouseEvents = [
-  `click` as const,
-  `mousedown` as const,
-  `mouseup` as const,
-  `mouseenter` as const,
-  `mouseleave` as const,
-  `mousemove` as const,
-  `mouseout` as const,
-  `mouseover` as const,
+  // `click` as const,
+  // `mousedown` as const,
+  // `mouseup` as const,
+  // `mouseenter` as const,
+  // `mouseleave` as const,
+  // `mousemove` as const,
+  // `mouseout` as const,
+  // `mouseover` as const,
 ]
 
-const passthroughEvents = [...pointerEvents, ...mouseEvents]
+const passthroughEvents = [...pointerEvents /*, ...mouseEvents*/]
 
 export const eventsEnhancer =
   <InheritOptions, InheritOutput extends EnhancerOutput<RootEnhancer>>(
@@ -50,6 +50,11 @@ export const eventsEnhancer =
 
     const reader = next(options)
 
+    const normalizeEventForViewport = createNormalizeEventForViewport({
+      iframeEventBridgeElement$: iframeEventBridgeElement$,
+      locator: reader.spine.locator,
+    })
+
     reader.hookManager.register(`item.onLoad`, ({ destroy, frame, itemId }) => {
       const item = reader.spineItemManager.get(itemId)
 
@@ -63,17 +68,32 @@ export const eventsEnhancer =
         const listener = (e: MouseEvent | PointerEvent | TouchEvent) => {
           let convertedEvent = e
 
+          /**
+           * We have to create a new fake event since the original one is already dispatched
+           * on original frame.
+           *
+           * @see Failed to execute 'dispatchEvent' on 'EventTarget': The event is already being dispatched.
+           */
           if (isPointerEvent(e)) {
             convertedEvent = new PointerEvent(e.type, e)
           }
 
-          if (isMouseEvent(e)) {
-            convertedEvent = new MouseEvent(e.type, e)
-          }
+          // if (isMouseEvent(e)) {
+          //   convertedEvent = new MouseEvent(e.type, e)
+          // }
 
           if (convertedEvent !== e) {
             attachOriginalFrameEventToDocumentEvent(convertedEvent, e)
-            iframeEventBridgeElement$.getValue()?.dispatchEvent(convertedEvent)
+
+            const normalizedEvent = normalizeEventForViewport(convertedEvent)
+
+            // @ts-ignore
+            // console.log(normalizedEvent.x, normalizedEvent.type)
+            reader.context.state.containerElement?.dispatchEvent(
+              normalizedEvent,
+            )
+            // reader.context.state.containerElement?.dispatchEvent(e)
+            // iframeEventBridgeElement$.getValue()?.dispatchEvent(convertedEvent)
           }
         }
 
@@ -92,20 +112,19 @@ export const eventsEnhancer =
       })
     })
 
-    reader.element$
-      .pipe(
-        tap((wrapper) => {
-          const iframeEventBridgeElement =
-            createIframeEventBridgeElement(wrapper)
+    // reader.element$
+    //   .pipe(
+    //     tap((wrapper) => {
+    //       const iframeEventBridgeElement = createIframeEventBridgeElement(wrapper)
 
-          wrapper.appendChild(iframeEventBridgeElement)
+    //       wrapper.appendChild(iframeEventBridgeElement)
 
-          iframeEventBridgeElement$.getValue()?.remove()
-          iframeEventBridgeElement$.next(iframeEventBridgeElement)
-        }),
-        takeUntil(reader.$.destroy$),
-      )
-      .subscribe()
+    //       iframeEventBridgeElement$.getValue()?.remove()
+    //       iframeEventBridgeElement$.next(iframeEventBridgeElement)
+    //     }),
+    //     takeUntil(reader.$.destroy$),
+    //   )
+    //   .subscribe()
 
     return {
       ...reader,

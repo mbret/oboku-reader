@@ -1,15 +1,14 @@
 import React from "react"
 import { useNavigate } from "react-router"
-import { useRecoilValue, useSetRecoilState } from "recoil"
-import { IconButton, Box } from "@chakra-ui/react"
-import { ArrowBackIcon, ArrowForwardIcon, SettingsIcon, SearchIcon, HamburgerIcon, QuestionOutlineIcon } from "@chakra-ui/icons"
-import { Scrubber } from "./Scrubber"
-import { bookTitleState, isComicState, isHelpOpenState, isSearchOpenState, isTocOpenState } from "../state"
+import { useSetRecoilState } from "recoil"
+import { IconButton } from "@chakra-ui/react"
+import { ArrowBackIcon, SettingsIcon, SearchIcon, HamburgerIcon, QuestionOutlineIcon } from "@chakra-ui/icons"
+import { isHelpOpenState, isSearchOpenState, isTocOpenState } from "../state"
 import { AppBar } from "../common/AppBar"
 import { useReader } from "./useReader"
-import { usePagination } from "./state"
 import { useObserve } from "reactjrx"
 import { NEVER } from "rxjs"
+import { BottomMenu } from "./BottomMenu"
 
 export const QuickMenu = ({
   open,
@@ -21,38 +20,12 @@ export const QuickMenu = ({
   onSettingsClick?: () => void
 }) => {
   const navigate = useNavigate()
-  const { reader, reader$ } = useReader()
-  const bookTitle = useRecoilValue(bookTitleState)
+  const { reader } = useReader()
+  const { manifest } = useObserve(reader?.context.state$ ?? NEVER) || {}
+  const { title: bookTitle } = manifest ?? {}
   const setIsSearchOpen = useSetRecoilState(isSearchOpenState)
   const setIsTocOpenState = useSetRecoilState(isTocOpenState)
   const setIsHelpOpenState = useSetRecoilState(isHelpOpenState)
-  const navigation = useObserve(reader?.navigation.state$ ?? NEVER)
-  const pagination = usePagination(reader$)
-  const [pageIndex, endPageIndex] = [
-    (pagination?.beginPageIndexInSpineItem || 0) + 1,
-    (pagination?.endPageIndexInSpineItem || 0) + 1
-  ].sort((a, b) => a - b)
-  const beginAndEndAreDifferent =
-    pagination?.beginPageIndexInSpineItem !== pagination?.endPageIndexInSpineItem ||
-    pagination?.beginSpineItemIndex !== pagination?.endSpineItemIndex
-  const hasOnlyOnePage = pagination?.numberOfTotalPages === 1
-  const isComic = useRecoilValue(isComicState)
-  // theses are mostly webtoon so we don't need pages, it would be weird
-  // const shouldHidePages = manifest?.renditionLayout === `reflowable` && manifest.renditionFlow === `scrolled-continuous`
-  const shouldHidePages = false
-  const [absoluteBeginPageIndex = 0, absoluteEndPageIndex = 0] = [
-    pagination?.beginAbsolutePageIndex,
-    pagination?.endAbsolutePageIndex
-  ].sort()
-
-  const buildTitleChain = (chapterInfo: NonNullable<typeof pagination>["beginChapterInfo"]): string => {
-    if (chapterInfo?.subChapter) {
-      return `${chapterInfo.title} / ${buildTitleChain(chapterInfo.subChapter)}`
-    }
-    return chapterInfo?.title || ""
-  }
-
-  const chapterTitle = buildTitleChain(pagination?.beginChapterInfo)
 
   const onSearchClick = () => {
     setIsSearchOpen(true)
@@ -101,91 +74,7 @@ export const QuickMenu = ({
           middleElement={bookTitle}
         />
       )}
-      {open && (
-        <AppBar
-          position="absolute"
-          left={0}
-          bottom={0}
-          height="auto"
-          minHeight={140}
-          leftElement={
-            <IconButton
-              icon={<ArrowBackIcon />}
-              aria-label="back"
-              onClick={() => reader?.navigation.goToLeftSpineItem()}
-              isDisabled={!navigation?.canGoLeftSpineItem}
-            />
-          }
-          rightElement={
-            <IconButton
-              icon={<ArrowForwardIcon />}
-              aria-label="forward"
-              isDisabled={!navigation?.canGoRightSpineItem}
-              onClick={() => {
-                reader?.navigation.goToRightSpineItem()
-              }}
-            />
-          }
-          middleElement={
-            <div
-              style={{
-                width: `100%`,
-                paddingLeft: 20,
-                paddingRight: 20,
-                overflow: "hidden",
-                textAlign: `center`
-              }}
-            >
-              <div
-                style={{
-                  color: "white"
-                }}
-              >
-                {`Progression: ${Math.round((pagination?.percentageEstimateOfBook || 0) * 100)}%`}
-              </div>
-              <Box flex={1}>
-                <div
-                  style={{
-                    color: "white",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                    overflow: "hidden"
-                  }}
-                >
-                  {chapterTitle ? `Chapter ${chapterTitle}` : ``}
-                </div>
-              </Box>
-              {!isComic && !hasOnlyOnePage && (
-                <div
-                  style={{
-                    color: "white"
-                  }}
-                >
-                  {beginAndEndAreDifferent && (
-                    <>{`page ${pageIndex} - ${endPageIndex} of ${pagination?.beginNumberOfPagesInSpineItem}`}</>
-                  )}
-                  {!beginAndEndAreDifferent && <>{`page ${pageIndex} of ${pagination?.beginNumberOfPagesInSpineItem}`}</>}
-                </div>
-              )}
-              {isComic && !hasOnlyOnePage && (
-                <div
-                  style={{
-                    color: "white"
-                  }}
-                >
-                  {beginAndEndAreDifferent && (
-                    <>{`page ${absoluteBeginPageIndex + 1} - ${absoluteEndPageIndex + 1} of ${pagination?.numberOfTotalPages}`}</>
-                  )}
-                  {!beginAndEndAreDifferent && <>{`page ${absoluteBeginPageIndex + 1} of ${pagination?.numberOfTotalPages}`}</>}
-                </div>
-              )}
-              <Box mt={2}>
-                <Scrubber />
-              </Box>
-            </div>
-          }
-        />
-      )}
+      <BottomMenu open={open} />
     </>
   )
 }

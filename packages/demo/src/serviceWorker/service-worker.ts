@@ -5,7 +5,8 @@ import {
   generateResourceFromArchive,
   generateManifestFromArchive,
   // generateResourceFromError,
-  configure
+  configure,
+  Manifest
 } from "@prose-reader/streamer"
 import { STREAMER_URL_PREFIX } from "./constants"
 import { extractInfoFromEvent, getResourcePath } from "./utils"
@@ -45,7 +46,20 @@ const serveManifest = async (epubUrl: string, baseUrl: string) => {
 
   const manifest = await generateManifestFromArchive(archive, { baseUrl })
 
-  return new Response(JSON.stringify(manifest), { status: 200 })
+  return new Response(
+    JSON.stringify({
+      ...manifest,
+      ...(archive.filename === "Solo Leveling - fr - 10 - Chu-Gong.cbz" && {
+        renditionLayout: "reflowable",
+        renditionFlow: "scrolled-continuous",
+        spineItems: manifest.spineItems.map((item) => ({
+          ...item,
+          renditionLayout: "reflowable"
+        }))
+      })
+    } satisfies Manifest),
+    { status: 200 }
+  )
 }
 
 const serveResource = async (event: any, epubUrl: string) => {

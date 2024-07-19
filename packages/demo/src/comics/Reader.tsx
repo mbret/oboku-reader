@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from "react"
 import { useEffect } from "react"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { useGestureHandler } from "./useGestureHandler"
+import { useRecoilState, useRecoilValue } from "recoil"
+import { useComicsGestureHandler } from "./useComicsGestureHandler"
 import { Reader as ReactReader } from "@prose-reader/react"
 import { QuickMenu } from "../reader/QuickMenu"
-import { bookReadyState, isMenuOpenState, manifestState, useResetStateOnUnMount } from "../state"
+import { bookReadyState, isMenuOpenState, useResetStateOnUnMount } from "../state"
 import { ComicsSettings } from "./ComicsSettings"
 import { Loading } from "../reader/Loading"
 import { useBookmarks } from "../reader/useBookmarks"
@@ -33,7 +33,6 @@ export const Reader = ({
   const isUsingFreeScroll = computedPageTurnMode === `scrollable`
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const { reader } = useReader()
-  const setManifestState = useSetRecoilState(manifestState)
   const [container, setContainer] = useState<HTMLElement | undefined>(undefined)
   const [bookReady, setBookReady] = useRecoilState(bookReadyState)
   const isMenuOpen = useRecoilValue(isMenuOpenState)
@@ -43,22 +42,16 @@ export const Reader = ({
     pageTurnMode: query.has("free") ? `scrollable` : `controlled`,
     layoutAutoResize: `container`,
     // cover portrait and spread mode without blank page
-    numberOfAdjacentSpineItemToPreLoad: 2
+    numberOfAdjacentSpineItemToPreLoad: 0,
   })
   const [readerLoadOptions, setReaderLoadOptions] = useState<ReactReaderProps["loadOptions"]>(undefined)
 
   useBookmarks(reader, url)
-  useGestureHandler(container, isUsingFreeScroll)
+  useComicsGestureHandler(container, isUsingFreeScroll)
 
   const onReady = useCallback(() => {
     setBookReady(true)
   }, [setBookReady])
-
-  useEffect(() => {
-    if (!reader || !manifest) return
-
-    setManifestState(manifest)
-  }, [setManifestState, reader, manifest])
 
   useEffect(() => {
     if (manifest) {

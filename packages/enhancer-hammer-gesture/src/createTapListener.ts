@@ -21,9 +21,9 @@ export const createTapListener = (reader: Reader, hammerManager: HammerManager) 
             //   }
 
             if (x < width * pageTurnMargin) {
-              reader.viewportNavigator.turnLeft()
+              reader.navigation.turnLeft()
             } else if (x > width * (1 - pageTurnMargin)) {
-              reader.viewportNavigator.turnRight()
+              reader.navigation.turnRight()
             } else {
               observer.next({ type: "tap" })
             }

@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "start": "vite build --watch --mode development",
-    "build": "tsc && vite build",
+    "-build": "tsc && vite build",
     "lint:read": "prettier --check . && eslint '**/*.{js,ts,tsx}'",
     "lint:write": "prettier --write . && eslint --fix '**/*.{js,ts,tsx}'",
     "test": "vitest run --coverage",
@@ -30,11 +30,12 @@
     "tsc": "tsc"
   },
   "peerDependencies": {
-    "@prose-reader/enhancer-gesture": "*",
     "@types/react": "*",
     "@types/react-dom": "*",
     "react": "*",
-    "react-dom": "*"
+    "react-dom": "*",
+    "@prose-reader/enhancer-gestures": "*",
+    "@prose-reader/enhancer-bookmarks": "*"
   },
   "dependencies": {
     "@prose-reader/core": "^1.45.0"

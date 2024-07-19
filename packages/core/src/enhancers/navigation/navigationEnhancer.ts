@@ -1,4 +1,3 @@
-import { takeUntil, tap } from "rxjs"
 import {
   EnhancerOptions,
   EnhancerOutput,
@@ -38,6 +37,7 @@ export const navigationEnhancer =
       ...reader,
       load,
       navigation: {
+        ...reader.navigation,
         state$,
         moveTo: panNavigator.moveTo.bind(panNavigator),
         turnLeft: manualNavigator.turnLeft.bind(manualNavigator),
@@ -53,6 +53,8 @@ export const navigationEnhancer =
           manualNavigator.goToLeftSpineItem.bind(manualNavigator),
         goToRightSpineItem:
           manualNavigator.goToRightSpineItem.bind(manualNavigator),
+        goToPageOfCurrentChapter:
+          manualNavigator.goToPageOfCurrentChapter.bind(manualNavigator),
       },
     }
   }

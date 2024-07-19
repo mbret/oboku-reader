@@ -1,7 +1,7 @@
 import { CFI, extractProseMetadataFromCfi } from "../cfi"
 import { Context } from "../context/Context"
 import { SpineItem } from "../spineItem/createSpineItem"
-import { createLocationResolver } from "../spineItem/locationResolver"
+import { createSpineItemLocator } from "../spineItem/locationResolver"
 import { SpineItemManager } from "../spineItemManager"
 import { Report } from "../report"
 import { Manifest } from "../types"
@@ -12,7 +12,7 @@ export const createCfiLocator = ({
 }: {
   spineItemManager: SpineItemManager
   context: Context
-  spineItemLocator: ReturnType<typeof createLocationResolver>
+  spineItemLocator: ReturnType<typeof createSpineItemLocator>
 }) => {
   const getItemAnchor = (spineItem: SpineItem) =>
     `|[prose~anchor~${encodeURIComponent(spineItem.item.id)}]`
@@ -64,6 +64,10 @@ export const createCfiLocator = ({
     const itemAnchor = getItemAnchor(spineItem)
 
     return `epubcfi(/0${itemAnchor}) `
+  }
+
+  const isRootCfi = (cfi: string) => {
+    return cfi?.startsWith(`epubcfi(/0`)
   }
 
   const getSpineItemFromCfi = (cfi: string) => {
@@ -187,5 +191,6 @@ export const createCfiLocator = ({
     getRootCfi,
     resolveCfi,
     generateFromRange,
+    isRootCfi
   }
 }

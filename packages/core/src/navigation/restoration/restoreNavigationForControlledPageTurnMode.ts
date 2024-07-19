@@ -1,0 +1,91 @@
+import { Context } from "../../context/Context"
+import { SpineLocator } from "../../spine/locationResolver"
+import { SpineItemLocator } from "../../spineItem/locationResolver"
+import { SpineItemManager } from "../../spineItemManager"
+import { InternalNavigationEntry } from "../InternalNavigator"
+import { getNavigationForUrl } from "../resolvers/getNavigationForUrl"
+import { getNavigationFromSpineItemPosition } from "../resolvers/getNavigationFromSpineItemPosition"
+import { NavigationResolver } from "../resolvers/NavigationResolver"
+
+export const restoreNavigationForControlledPageTurnMode = ({
+  spineLocator,
+  navigation,
+  navigationResolver,
+  spineItemManager,
+  spineItemLocator,
+  context,
+}: {
+  context: Context
+  navigation: InternalNavigationEntry
+  spineLocator: SpineLocator
+  navigationResolver: NavigationResolver
+  spineItemManager: SpineItemManager
+  spineItemLocator: SpineItemLocator
+}) => {
+  const spineItem = spineItemManager.get(navigation.spineItem)
+
+  if (!spineItem) {
+    return { x: 0, y: 0 }
+  }
+
+  const spineItemAbsolutePosition =
+    spineItemManager.getAbsolutePositionOf(spineItem)
+
+  const isPositionWithinSpineItem = spineLocator.isPositionWithinSpineItem(
+    navigation.position,
+    spineItem,
+  )
+
+  const hasSpineItemShiftedPosition =
+    spineItemAbsolutePosition.left !== navigation.spineItemLeft ||
+    spineItemAbsolutePosition.top !== navigation.spineItemTop
+
+  /**
+   * Url navigation has higher priority together with CFI, we should
+   * restore from it first.
+   */
+  if (navigation.url !== undefined) {
+    const urlResult = getNavigationForUrl({
+      context,
+      navigationResolver,
+      spineItemManager,
+      spineLocator,
+      url: navigation.url,
+    })
+
+    if (urlResult) {
+      return urlResult.position
+    }
+  }
+
+  if (isPositionWithinSpineItem) {
+    if (hasSpineItemShiftedPosition) {
+      const spineItemPosition = navigation.positionInSpineItem ?? {
+        x: 0,
+        y: 0,
+      }
+
+      return getNavigationFromSpineItemPosition({
+        spineItem,
+        spineItemLocator,
+        spineItemPosition,
+        spineLocator,
+      })
+    }
+
+    return navigationResolver.getNavigationForPosition(navigation.position)
+  }
+
+  /**
+   * Fallback.
+   *
+   * We find the most appropriate navigation for spine item.
+   */
+  const fallbackPosition =
+    navigationResolver.getNavigationForSpineIndexOrId(spineItem)
+
+  return {
+    x: fallbackPosition.x,
+    y: fallbackPosition.y,
+  }
+}

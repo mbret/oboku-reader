@@ -1,6 +1,8 @@
 import { atom, selector, useRecoilCallback } from "recoil"
-import { Manifest } from "@prose-reader/core"
 import { useEffect } from "react"
+import { useReader } from "./reader/useReader"
+import { useObserve } from "reactjrx"
+import { NEVER } from "rxjs"
 
 export const isSearchOpenState = atom({
   key: `isSearchOpenState`,
@@ -17,38 +19,24 @@ export const isHelpOpenState = atom({
   default: false
 })
 
-export const bookTitleState = selector({
-  key: `bookTitleState`,
-  get: ({ get }) => {
-    return get(manifestState)?.title
-  }
-})
-
 export const bookReadyState = atom({
   key: `bookReadyState`,
   default: false
 })
 
-export const manifestState = atom<Manifest | undefined>({
-  key: `manifestState`,
-  default: undefined
-})
+export const useIsComics = () => {
+  const { reader } = useReader()
+  const manifest = useObserve(reader?.context.manifest$ ?? NEVER)
 
-export const isComicState = selector({
-  key: `isComicState`,
-  get: ({ get }) => {
-    const manifest = get(manifestState)
-
-    return (
-      manifest?.renditionLayout === "pre-paginated" ||
-      manifest?.spineItems.every((item) => item.renditionLayout === "pre-paginated") ||
-      // webtoon
-      (manifest?.renditionFlow === `scrolled-continuous` &&
-        manifest.renditionLayout === `reflowable` &&
-        manifest?.spineItems.every((item) => item.mediaType?.startsWith(`image/`)))
-    )
-  }
-})
+  return (
+    manifest?.renditionLayout === "pre-paginated" ||
+    manifest?.spineItems.every((item) => item.renditionLayout === "pre-paginated") ||
+    // webtoon
+    (manifest?.renditionFlow === `scrolled-continuous` &&
+      manifest.renditionLayout === `reflowable` &&
+      manifest?.spineItems.every((item) => item.mediaType?.startsWith(`image/`)))
+  )
+}
 
 export const isMenuOpenState = atom({
   key: `isMenuOpenState`,
@@ -72,7 +60,7 @@ export const isZoomingState = atom<boolean>({
   default: false
 })
 
-const statesToReset = [isMenuOpenState, manifestState, bookReadyState, currentHighlight]
+const statesToReset = [isMenuOpenState, bookReadyState, currentHighlight]
 
 export const useResetStateOnUnMount = () => {
   const resetStates = useRecoilCallback(

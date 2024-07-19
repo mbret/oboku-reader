@@ -3,7 +3,7 @@ import { fontsEnhancer } from "./enhancers/fonts/fonts"
 import { hotkeysEnhancer } from "./enhancers/hotkeys"
 import { layoutEnhancer } from "./enhancers/layoutEnhancer/layoutEnhancer"
 import { linksEnhancer } from "./enhancers/links"
-import { navigationEnhancer } from "./enhancers/navigation/navigation"
+import { navigationEnhancer } from "./enhancers/navigation/navigationEnhancer"
 import { paginationEnhancer } from "./enhancers/pagination/enhancer"
 import { themeEnhancer } from "./enhancers/theme"
 import { zoomEnhancer } from "./enhancers/zoom"
@@ -20,20 +20,20 @@ import { eventsEnhancer } from "./enhancers/events/events"
 
 export const createReaderWithEnhancers = //__
   publicApiEnhancer(
-    loadingEnhancer(
-      webkitEnhancer(
-        fontsEnhancer(
-          linksEnhancer(
-            accessibilityEnhancer(
-              resourcesEnhancer(
-                utilsEnhancer(
-                  layoutEnhancer(
-                    zoomEnhancer(
-                      mediaEnhancer(
-                        chromeEnhancer(
-                          navigationEnhancer(
-                            themeEnhancer(
-                              hotkeysEnhancer(
+    hotkeysEnhancer(
+      loadingEnhancer(
+        webkitEnhancer(
+          fontsEnhancer(
+            linksEnhancer(
+              accessibilityEnhancer(
+                resourcesEnhancer(
+                  utilsEnhancer(
+                    layoutEnhancer(
+                      zoomEnhancer(
+                        mediaEnhancer(
+                          chromeEnhancer(
+                            navigationEnhancer(
+                              themeEnhancer(
                                 paginationEnhancer(
                                   progressionEnhancer(
                                     eventsEnhancer(

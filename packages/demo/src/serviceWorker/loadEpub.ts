@@ -57,8 +57,10 @@ export const loadEpub = async (url: string) => {
       archive = await createArchiveFromText(content)
     } else {
       const epubData = `blob` in responseOrFile ? await responseOrFile.blob() : responseOrFile
+      const name = epubData.name
       const jszip = await loadAsync(epubData)
-      archive = await createArchiveFromJszip(jszip, { orderByAlpha: true })
+
+      archive = await createArchiveFromJszip(jszip, { orderByAlpha: true, name })
     }
 
     lastUrl = url

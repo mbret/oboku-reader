@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => ({
     {
       enforce: `pre`,
       ...externals({
+        exclude: [`@chakra-ui/react`, `screenfull`],
         peerDeps: true,
         deps: true,
         devDeps: true,

@@ -1,4 +1,10 @@
-import { BehaviorSubject, merge, Subject } from "rxjs"
+import {
+  BehaviorSubject,
+  combineLatest,
+  merge,
+  Observable,
+  Subject,
+} from "rxjs"
 import { tap, takeUntil, switchMap, map } from "rxjs/operators"
 import { Report } from "./report"
 import { Context } from "./context/Context"
@@ -15,7 +21,7 @@ export const createSpineItemManager = ({
   context: Context
   settings: ReaderSettingsManager
 }) => {
-  const focus$ = new Subject<{ data: SpineItem }>()
+  // const focus$ = new Subject<{ data: SpineItem }>()
   const layout$ = new Subject<boolean>()
   /**
    * This contains every item dimension / position on the viewport.
@@ -31,19 +37,7 @@ export const createSpineItemManager = ({
     width: number
     height: number
   }[] = []
-  const orderedSpineItemsSubject$ = new BehaviorSubject<SpineItem[]>([])
-  /**
-   * focused item represent the current item that the user navigated to.
-   * It can be either the left or right page for a spread, not necessarily the begin item
-   * either. This focused item is very important for everything that is related to navigation
-   * and adjustment of viewport.
-   *
-   * @important
-   * The focused item can sometime not be visible on the screen, in case of a viewport misalignment.
-   * However it means the next adjustment will use the focused item to detect when to move the viewport.
-   */
-  let focusedSpineItemIndex: number | undefined
-
+  const orderedSpineItemsSubject = new BehaviorSubject<SpineItem[]>([])
   /**
    * @todo
    * move this logic to the spine
@@ -57,13 +51,13 @@ export const createSpineItemManager = ({
     const newItemLayoutInformation: typeof itemLayoutInformation = []
     const isGloballyPrePaginated = manifest?.renditionLayout === `pre-paginated`
 
-    orderedSpineItemsSubject$.value.reduce(
+    orderedSpineItemsSubject.value.reduce(
       ({ horizontalOffset, verticalOffset }, item, index) => {
         let minimumWidth = context.getPageSize().width
         let blankPagePosition: `none` | `before` | `after` = `none`
         const itemStartOnNewScreen =
           horizontalOffset % context.state.visibleAreaRect.width === 0
-        const isLastItem = index === orderedSpineItemsSubject$.value.length - 1
+        const isLastItem = index === orderedSpineItemsSubject.value.length - 1
 
         if (context.state.isUsingSpreadMode) {
           /**
@@ -220,33 +214,17 @@ export const createSpineItemManager = ({
       { horizontalOffset: 0, verticalOffset: 0 },
     )
 
-    const hasLayoutChanges = itemLayoutInformation.some(
-      (old, index) => !isShallowEqual(old, newItemLayoutInformation[index]),
-    )
+    const hasLayoutChanges =
+      itemLayoutInformation.length !== newItemLayoutInformation.length ||
+      itemLayoutInformation.some(
+        (old, index) => !isShallowEqual(old, newItemLayoutInformation[index]),
+      )
 
     itemLayoutInformation = newItemLayoutInformation
 
     Report.log(NAMESPACE, `layout`, { hasLayoutChanges, itemLayoutInformation })
 
     layout$.next(hasLayoutChanges)
-  }
-
-  const focus = (indexOrSpineItem: number | SpineItem) => {
-    const spineItemToFocus =
-      typeof indexOrSpineItem === `number`
-        ? get(indexOrSpineItem)
-        : indexOrSpineItem
-
-    if (!spineItemToFocus) return
-
-    const newActiveSpineItemIndex =
-      orderedSpineItemsSubject$.value.indexOf(spineItemToFocus)
-
-    if (newActiveSpineItemIndex === focusedSpineItemIndex) return
-
-    focusedSpineItemIndex = newActiveSpineItemIndex
-
-    focus$.next({ data: spineItemToFocus })
   }
 
   /**
@@ -267,11 +245,12 @@ export const createSpineItemManager = ({
       const isUsingFreeScroll =
         settings.settings.computedPageTurnMode === `scrollable`
 
-      orderedSpineItemsSubject$.value.forEach((orderedSpineItem, index) => {
+      orderedSpineItemsSubject.value.forEach((orderedSpineItem, index) => {
         const isBeforeFocusedWithPreload =
           // we never want to preload anything before on free scroll on flow because it could offset the cursor
           index < leftIndex && !isPrePaginated && isUsingFreeScroll
-            ? true
+            ? // ? true
+              index < leftIndex - numberOfAdjacentSpineItemToPreLoad
             : index < leftIndex - numberOfAdjacentSpineItemToPreLoad
         const isAfterTailWithPreload =
           index > rightIndex + numberOfAdjacentSpineItemToPreLoad
@@ -285,66 +264,70 @@ export const createSpineItemManager = ({
     },
   )
 
-  const get = (indexOrId: number | string) => {
+  const get = (indexOrId: number | string | SpineItem | undefined) => {
     if (typeof indexOrId === `number`) {
-      return orderedSpineItemsSubject$.value[indexOrId]
+      return orderedSpineItemsSubject.value[indexOrId]
     }
 
-    return orderedSpineItemsSubject$.value.find(
-      ({ item }) => item.id === indexOrId,
-    )
+    if (typeof indexOrId === `string`) {
+      return orderedSpineItemsSubject.value.find(
+        ({ item }) => item.id === indexOrId,
+      )
+    }
+
+    return indexOrId
   }
 
   /**
    * It's important to not use x,y since we need the absolute position of each element. Otherwise x,y would be relative to
    * current window (viewport).
    */
-  const getAbsolutePositionOf = (spineItemOrIndex: SpineItem | number) => {
-    const indexOfItem =
-      typeof spineItemOrIndex === `number`
-        ? spineItemOrIndex
-        : orderedSpineItemsSubject$.value.indexOf(spineItemOrIndex)
+  const getAbsolutePositionOf = (
+    spineItemOrIndex: SpineItem | number | string | undefined,
+  ) => {
+    const fallback = {
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      width: 0,
+      height: 0,
+    }
+
+    const spineItem = get(spineItemOrIndex)
+
+    const indexOfItem = spineItem
+      ? orderedSpineItemsSubject.value.indexOf(spineItem)
+      : -1
 
     const layoutInformation = itemLayoutInformation[indexOfItem]
 
-    return (
-      layoutInformation || {
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        width: 0,
-        height: 0,
-      }
-    )
+    return layoutInformation || fallback
   }
 
-  const getFocusedSpineItem = () =>
-    focusedSpineItemIndex !== undefined
-      ? orderedSpineItemsSubject$.value[focusedSpineItemIndex]
-      : undefined
-
   const comparePositionOf = (toCompare: SpineItem, withItem: SpineItem) => {
-    const isAfter =
-      orderedSpineItemsSubject$.value.indexOf(toCompare) >
-      orderedSpineItemsSubject$.value.indexOf(withItem)
+    const toCompareIndex = getSpineItemIndex(toCompare) ?? 0
+    const withIndex = getSpineItemIndex(withItem) ?? 0
 
-    if (isAfter) {
-      return `after`
-    }
-
-    return `before`
+    return toCompareIndex > withIndex
+      ? `after`
+      : toCompareIndex === withIndex
+        ? `same`
+        : `before`
   }
 
   const getSpineItemIndex = (spineItem: SpineItem | undefined) => {
     if (!spineItem) return undefined
-    const index = orderedSpineItemsSubject$.value.indexOf(spineItem)
+    const index = orderedSpineItemsSubject.value.indexOf(spineItem)
 
     return index < 0 ? undefined : index
   }
 
   const add = (spineItem: SpineItem) => {
-    orderedSpineItemsSubject$.value.push(spineItem)
+    orderedSpineItemsSubject.next([
+      ...orderedSpineItemsSubject.getValue(),
+      spineItem,
+    ])
 
     spineItem.$.contentLayout$
       .pipe(takeUntil(context.destroy$))
@@ -374,27 +357,22 @@ export const createSpineItemManager = ({
     spineItem.load()
   }
 
-  const getAll = () => orderedSpineItemsSubject$.value
+  const getAll = () => orderedSpineItemsSubject.value
 
   const getLength = () => {
-    return orderedSpineItemsSubject$.value.length
-  }
-
-  const getFocusedSpineItemIndex = () => {
-    const item = getFocusedSpineItem()
-    return item && getSpineItemIndex(item)
+    return orderedSpineItemsSubject.value.length
   }
 
   /**
    * @todo handle reload, remove subscription to each items etc. See add()
    */
   const destroyItems = () => {
-    orderedSpineItemsSubject$.value.forEach((item) => item.destroy())
+    orderedSpineItemsSubject.value.forEach((item) => item.destroy())
   }
 
   const destroy = () => {
     destroyItems()
-    focus$.complete()
+    // focus$.complete()
     layout$.complete()
   }
 
@@ -405,18 +383,34 @@ export const createSpineItemManager = ({
     getAll,
     getLength,
     layout,
-    focus,
     loadContents,
     comparePositionOf,
     getAbsolutePositionOf,
-    getFocusedSpineItem,
-    getFocusedSpineItemIndex,
     getSpineItemIndex,
     destroy,
+    itemResize$: orderedSpineItemsSubject.pipe(
+      switchMap((items) => {
+        const resize$ = items.map(
+          (item) =>
+            new Observable((subscriber) => {
+              const ro = new ResizeObserver((entries) => {
+                subscriber.next(entries)
+              })
+
+              ro.observe(item.element)
+
+              return function unsubscribe() {
+                ro.unobserve(item.element)
+              }
+            }),
+        )
+
+        return combineLatest(resize$)
+      }),
+    ),
     $: {
-      focus$: focus$.asObservable(),
       layout$: layout$.asObservable(),
-      itemIsReady$: orderedSpineItemsSubject$.asObservable().pipe(
+      itemIsReady$: orderedSpineItemsSubject.asObservable().pipe(
         switchMap((items) => {
           const itemsIsReady$ = items.map((item) =>
             item.$.isReady$.pipe(

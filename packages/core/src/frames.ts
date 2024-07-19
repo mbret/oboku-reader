@@ -1,5 +1,3 @@
-import { __UNSAFE_REFERENCE_ORIGINAL_IFRAME_EVENT_KEY } from "./constants"
-
 export const createRemoveStyleHelper =
   (frameElement: HTMLIFrameElement | undefined) => (id: string) => {
     if (
@@ -39,21 +37,4 @@ export const getAttributeValueFromString = (string: string, key: string) => {
   const firstMatch = match[1] || `0`
 
   return (match && parseFloat(firstMatch)) || 0
-}
-
-export const getOriginalFrameEventFromDocumentEvent = <E extends Event>(
-  event: E,
-): E | undefined => {
-  // @ts-ignore
-  return event[__UNSAFE_REFERENCE_ORIGINAL_IFRAME_EVENT_KEY]
-}
-
-export const attachOriginalFrameEventToDocumentEvent = <E extends Event>(
-  event: E,
-  frameEvent: E,
-) => {
-  Object.defineProperty(event, __UNSAFE_REFERENCE_ORIGINAL_IFRAME_EVENT_KEY, {
-    value: frameEvent,
-    enumerable: true,
-  })
 }

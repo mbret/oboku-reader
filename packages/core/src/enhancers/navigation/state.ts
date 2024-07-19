@@ -2,12 +2,9 @@ import { distinctUntilChanged, map, withLatestFrom } from "rxjs"
 import { Reader } from "../../reader"
 import { isShallowEqual } from "../../utils/objects"
 
-export type State = {
-  canGoLeftSpineItem: boolean
-  canGoRightSpineItem: boolean
-}
+export type State = ReturnType<typeof observeState>
 
-export const createState = (reader: Reader) => {
+export const observeState = (reader: Reader) => {
   return reader.pagination.paginationInfo$.pipe(
     withLatestFrom(reader.context.manifest$, reader.settings.settings$),
     map(([paginationInfo, manifest, { computedPageTurnDirection }]) => {
