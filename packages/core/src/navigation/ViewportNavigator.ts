@@ -131,8 +131,6 @@ export class ViewportNavigator extends DestroyableClass {
       }),
       switchMap((currentEvent) => {
         const element = this.viewportElement$.getValue()
-
-        console.log({currentEvent})
         
         // cleanup potential previous manual adjust
         element.style.setProperty(`transition`, `none`)

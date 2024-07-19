@@ -27,7 +27,10 @@ export class SpineItemManagerMock {
       height: number
     }[],
   ) {
-    this.items = items
+    this.items = items.map((item) => ({
+      ...item,
+      getElementDimensions: () => ({ width: item.width, height: item.height }),
+    }))
   }
 
   get(id: number) {

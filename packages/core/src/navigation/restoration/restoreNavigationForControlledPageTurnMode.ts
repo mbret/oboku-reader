@@ -32,6 +32,14 @@ export const restoreNavigationForControlledPageTurnMode = ({
     spineItemAbsolutePosition.left !== navigation.spineItemLeft ||
     spineItemAbsolutePosition.top !== navigation.spineItemTop
 
+  const spineItemWidthDifference =
+    spineItemAbsolutePosition.width - (navigation.spineItemWidth ?? 0)
+  const spineItemHeighDifference =
+    spineItemAbsolutePosition.height - (navigation.spineItemHeight ?? 0)
+
+  const hasSpineItemGrewOrShrink =
+    spineItemWidthDifference !== 0 || spineItemHeighDifference !== 0
+
   /**
    * Url navigation has higher priority together with CFI, we should
    * restore from it first.
@@ -54,6 +62,21 @@ export const restoreNavigationForControlledPageTurnMode = ({
       return navigationResolver.getNavigationFromSpineItemPosition({
         spineItem,
         spineItemPosition,
+      })
+    }
+
+    if (
+      hasSpineItemGrewOrShrink &&
+      navigation.directionFromLastNavigation === "backward"
+    ) {
+      const positionInSpineItemWithDifference = {
+        x: (navigation.positionInSpineItem?.x ?? 0) + spineItemWidthDifference,
+        y: (navigation.positionInSpineItem?.y ?? 0) + spineItemHeighDifference,
+      }
+
+      return navigationResolver.getNavigationFromSpineItemPosition({
+        spineItem,
+        spineItemPosition: positionInSpineItemWithDifference,
       })
     }
 

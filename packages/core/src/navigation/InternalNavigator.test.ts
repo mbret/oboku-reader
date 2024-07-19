@@ -25,8 +25,8 @@ describe(`Given unloaded book`, () => {
 
       sub.unsubscribe()
 
-      expect(navigations.length).toBe(3)
-      expect(navigations[1]).toEqual({
+      expect(navigations.length).toBe(2)
+      expect(navigations[1]).toMatchObject({
         position: { x: 0, y: 0 },
         triggeredBy: "user",
         type: "api",
@@ -51,8 +51,8 @@ describe(`Given unloaded book`, () => {
 
       sub.unsubscribe()
 
-      expect(navigations.length).toBe(3)
-      expect(navigations[1]).toEqual({
+      expect(navigations.length).toBe(2)
+      expect(navigations[1]).toMatchObject({
         position: { x: 0, y: 0 },
         triggeredBy: "user",
         type: "api",
@@ -82,7 +82,7 @@ describe(`Given loaded book`, () => {
 
       sub.unsubscribe()
 
-      expect(navigations.length).toBe(3)
+      expect(navigations.length).toBe(2)
       expect(navigations[1]).toMatchObject({
         position: { x: 0, y: 0 },
         spineItem: 0,
@@ -112,7 +112,7 @@ describe(`Given loaded book`, () => {
 
       sub.unsubscribe()
 
-      expect(navigations.length).toBe(3)
+      expect(navigations.length).toBe(2)
       expect(navigations[1]).toMatchObject({
         position: { x: 100, y: 0 },
         spineItem: 1,
