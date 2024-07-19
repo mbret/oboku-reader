@@ -1,7 +1,7 @@
 import { Context } from "../../../context/Context"
 import { NavigationResolver } from "../../../navigation/resolvers/NavigationResolver"
 import { ViewportPosition } from "../../../navigation/ViewportNavigator"
-import { SpineLocator } from "../../../spine/locationResolver"
+import { SpineLocationResolver } from "../../../spine/resolvers/SpineLocationResolver"
 import { SpineItem } from "../../../spineItem/createSpineItem"
 import { SpineItemNavigationResolver } from "../../../spineItem/navigationResolver"
 import { SpineItemManager } from "../../../spineItemManager"
@@ -19,7 +19,7 @@ export const getNavigationForSpineItemPage = ({
   spineItemId?: SpineItem | number | string
   spineItemManager: SpineItemManager
   spineItemNavigationResolver: SpineItemNavigationResolver
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
   context: Context
   navigationResolver: NavigationResolver
 }): ViewportPosition => {

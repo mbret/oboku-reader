@@ -1,4 +1,4 @@
-import { SpineLocator } from "../../spine/locationResolver"
+import { SpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
 import { SpineItem } from "../../spineItem/createSpineItem"
 import { SpineItemLocator } from "../../spineItem/locationResolver"
 import { UnsafeSpineItemPosition } from "../../spineItem/types"
@@ -11,7 +11,7 @@ export const getNavigationFromSpineItemPosition = ({
 }: {
   spineItemPosition: UnsafeSpineItemPosition
   spineItem: SpineItem
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
   spineItemLocator: SpineItemLocator
 }) => {
   const navigationInSpineItem =

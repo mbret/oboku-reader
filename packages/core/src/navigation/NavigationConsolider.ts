@@ -3,7 +3,7 @@ import { ViewportPosition } from "./ViewportNavigator"
 import { Pagination } from "../pagination/Pagination"
 import { createNavigationResolver } from "./resolvers/NavigationResolver"
 import { SpineItemManager } from "../spineItemManager"
-import { createSpineLocationResolver } from "../spine/locationResolver"
+import { SpineLocationResolver } from "../spine/resolvers/SpineLocationResolver"
 import { isShallowEqual } from "../utils/objects"
 import { UnsafeSpineItemPosition } from "../spineItem/types"
 import { SpineItem } from "../spineItem/createSpineItem"
@@ -51,7 +51,7 @@ export class NavigatorConsolider {
     protected pagination: Pagination,
     protected navigationResolver: ReturnType<typeof createNavigationResolver>,
     protected spineItemManager: SpineItemManager,
-    protected spineLocator: ReturnType<typeof createSpineLocationResolver>,
+    protected spineLocator: SpineLocationResolver,
   ) {}
 
   // @todo update spine item position from position

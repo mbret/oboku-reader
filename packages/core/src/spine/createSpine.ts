@@ -4,9 +4,9 @@ import { Context } from "../context/Context"
 import { Pagination } from "../pagination/Pagination"
 import { createSpineItem } from "../spineItem/createSpineItem"
 import { SpineItemManager } from "../spineItemManager"
-import { createSpineLocationResolver as createSpineLocationResolver } from "./locationResolver"
+import { SpineLocationResolver } from "./resolvers/SpineLocationResolver"
 import { createSpineItemLocator as createSpineItemLocationResolver } from "../spineItem/locationResolver"
-import { createCfiLocator } from "./cfiLocator"
+import { createCfiResolver } from "../cfi/cfiResolver"
 import { createSelection } from "../selection"
 import type { Spine } from "../types/Spine"
 import { HTML_PREFIX } from "../constants"
@@ -46,8 +46,8 @@ export const createSpine = ({
   pagination: Pagination
   spineItemManager: SpineItemManager
   spineItemLocator: ReturnType<typeof createSpineItemLocationResolver>
-  spineLocator: ReturnType<typeof createSpineLocationResolver>
-  cfiLocator: ReturnType<typeof createCfiLocator>
+  spineLocator: SpineLocationResolver
+  cfiLocator: ReturnType<typeof createCfiResolver>
   navigation$: Observable<Navigation>
   viewportState$: Observable<`free` | `busy`>
   settings: ReaderSettingsManager

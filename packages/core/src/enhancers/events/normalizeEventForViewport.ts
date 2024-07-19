@@ -3,14 +3,14 @@ import {
   __UNSAFE_REFERENCE_ORIGINAL_IFRAME_EVENT_KEY,
   getOriginalFrameEventFromDocumentEvent,
 } from "./frames"
-import { createSpineLocationResolver } from "../../spine/locationResolver"
+import { SpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
 import { isMouseEvent, isPointerEvent, isTouchEvent } from "../../utils/dom"
 
 export const createNormalizeEventForViewport = ({
   locator,
 }: {
   iframeEventBridgeElement$: BehaviorSubject<HTMLElement | undefined>
-  locator: ReturnType<typeof createSpineLocationResolver>
+  locator: SpineLocationResolver
 }) => {
   const normalizeEventForViewport = <
     E extends MouseEvent | TouchEvent | PointerEvent,

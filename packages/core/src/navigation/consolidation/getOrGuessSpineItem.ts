@@ -1,6 +1,6 @@
 import { Context } from "../../context/Context"
 import { ReaderSettingsManager } from "../../settings/ReaderSettingsManager"
-import { SpineLocator } from "../../spine/locationResolver"
+import { SpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
 import { SpineItemManager } from "../../spineItemManager"
 import {
   InternalNavigationEntry,
@@ -31,7 +31,7 @@ export const getOrGuessSpineItem = ({
   spineItemManager: SpineItemManager
   settings: ReaderSettingsManager
   navigationResolver: NavigationResolver
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
 }) => {
   const { position, spineItem, cfi } = navigation
   const { navigationSnapThreshold, computedPageTurnMode } = settings.settings

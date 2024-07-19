@@ -1,4 +1,4 @@
-import { CFI, extractProseMetadataFromCfi } from "../cfi"
+import { CFI, extractProseMetadataFromCfi } from "./cfi"
 import { Context } from "../context/Context"
 import { SpineItem } from "../spineItem/createSpineItem"
 import { createSpineItemLocator } from "../spineItem/locationResolver"
@@ -6,7 +6,7 @@ import { SpineItemManager } from "../spineItemManager"
 import { Report } from "../report"
 import { Manifest } from "../types"
 
-export const createCfiLocator = ({
+export const createCfiResolver = ({
   spineItemManager,
   spineItemLocator,
 }: {

@@ -23,8 +23,8 @@ import { createSpineItemManager } from "./spineItemManager"
 import { isShallowEqual } from "./utils/objects"
 import { createViewportNavigator } from "./navigation/Navigator"
 import { createSpineItemLocator as createSpineItemLocator } from "./spineItem/locationResolver"
-import { createSpineLocationResolver as createSpineLocator } from "./spine/locationResolver"
-import { createCfiLocator } from "./spine/cfiLocator"
+import { createSpineLocationResolver } from "./spine/resolvers/SpineLocationResolver"
+import { createCfiResolver } from "./cfi/cfiResolver"
 import { Manifest } from "@prose-reader/shared"
 import { LoadOptions, ReaderInternal } from "./types/reader"
 import { isDefined } from "./utils/isDefined"
@@ -72,13 +72,13 @@ export const createReader = (
     settings: settingsManager,
   })
   const pagination = new Pagination(context, spineItemManager)
-  const spineLocator = createSpineLocator({
+  const spineLocator = createSpineLocationResolver({
     context,
     spineItemManager,
     spineItemLocator,
     settings: settingsManager,
   })
-  const cfiLocator = createCfiLocator({
+  const cfiLocator = createCfiResolver({
     spineItemManager,
     context,
     spineItemLocator,

@@ -3,8 +3,8 @@ import { Context } from "../../context/Context"
 import { SpineItemManager } from "../../spineItemManager"
 import { SpineItem } from "../../spineItem/createSpineItem"
 import { createNavigationResolver as createSpineItemNavigator } from "../../spineItem/navigationResolver"
-import { createSpineLocationResolver } from "../../spine/locationResolver"
-import { createCfiLocator } from "../../spine/cfiLocator"
+import { SpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
+import { createCfiResolver } from "../../cfi/cfiResolver"
 import { ReaderSettingsManager } from "../../settings/ReaderSettingsManager"
 import { ViewportPosition } from "../ViewportNavigator"
 import {
@@ -29,8 +29,8 @@ export const createNavigationResolver = ({
 }: {
   context: Context
   spineItemManager: SpineItemManager
-  cfiLocator: ReturnType<typeof createCfiLocator>
-  locator: ReturnType<typeof createSpineLocationResolver>
+  cfiLocator: ReturnType<typeof createCfiResolver>
+  locator: SpineLocationResolver
   settings: ReaderSettingsManager
 }) => {
   const spineItemNavigator = createSpineItemNavigator({ context, settings })

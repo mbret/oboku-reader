@@ -1,4 +1,4 @@
-import { SpineLocator } from "../../spine/locationResolver"
+import { SpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
 import { SpineItemManager } from "../../spineItemManager"
 import { InternalNavigationEntry } from "../InternalNavigator"
 import { NavigationResolver } from "../resolvers/NavigationResolver"
@@ -10,7 +10,7 @@ export const restoreNavigationForControlledPageTurnMode = ({
   spineItemManager,
 }: {
   navigation: InternalNavigationEntry
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
   navigationResolver: NavigationResolver
   spineItemManager: SpineItemManager
 }) => {

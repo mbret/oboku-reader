@@ -25,7 +25,7 @@ import { ViewportNavigator, ViewportPosition } from "./ViewportNavigator"
 import { Pagination } from "../pagination/Pagination"
 import { createNavigationResolver } from "./resolvers/NavigationResolver"
 import { SpineItemManager } from "../spineItemManager"
-import { createSpineLocationResolver } from "../spine/locationResolver"
+import { SpineLocationResolver } from "../spine/resolvers/SpineLocationResolver"
 import { isShallowEqual } from "../utils/objects"
 import {
   NavigationConsolidation,
@@ -114,7 +114,7 @@ export class InternalNavigator extends DestroyableClass {
     protected pagination: Pagination,
     protected navigationResolver: ReturnType<typeof createNavigationResolver>,
     protected spineItemManager: SpineItemManager,
-    protected spineLocator: ReturnType<typeof createSpineLocationResolver>,
+    protected spineLocator: SpineLocationResolver,
     protected element$: Observable<HTMLElement>,
     protected viewportState$: Observable<"free" | "busy">,
   ) {

@@ -1,16 +1,16 @@
-import { Context } from "../context/Context"
-import { SpineItem } from "../spineItem/createSpineItem"
-import { createSpineItemLocator as createSpineItemLocator } from "../spineItem/locationResolver"
-import { SpineItemManager } from "../spineItemManager"
-import { Report } from "../report"
+import { Context } from "../../context/Context"
+import { SpineItem } from "../../spineItem/createSpineItem"
+import { createSpineItemLocator as createSpineItemLocator } from "../../spineItem/locationResolver"
+import { SpineItemManager } from "../../spineItemManager"
+import { Report } from "../../report"
 import {
   SafeSpineItemPosition,
   UnsafeSpineItemPosition,
-} from "../spineItem/types"
-import { ReaderSettingsManager } from "../settings/ReaderSettingsManager"
-import { ViewportPosition } from "../navigation/ViewportNavigator"
+} from "../../spineItem/types"
+import { ReaderSettingsManager } from "../../settings/ReaderSettingsManager"
+import { ViewportPosition } from "../../navigation/ViewportNavigator"
 
-export type SpineLocator = ReturnType<typeof createSpineLocationResolver>
+export type SpineLocationResolver = ReturnType<typeof createSpineLocationResolver>
 
 export const createSpineLocationResolver = ({
   spineItemManager,

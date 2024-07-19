@@ -1,7 +1,7 @@
 import { Context } from "../../../context/Context"
 import { NavigationResolver } from "../../../navigation/resolvers/NavigationResolver"
 import { ViewportPosition } from "../../../navigation/ViewportNavigator"
-import { SpineLocator } from "../../../spine/locationResolver"
+import { SpineLocationResolver } from "../../../spine/resolvers/SpineLocationResolver"
 import { SpineItem } from "../../../spineItem/createSpineItem"
 import { SpineItemManager } from "../../../spineItemManager"
 import { getNavigationForLeftSinglePage } from "./getNavigationForLeftSinglePage"
@@ -27,7 +27,7 @@ export const getNavigationForLeftPage = ({
   context: Context
   spineItemManager: SpineItemManager
   navigationResolver: NavigationResolver
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
   computedPageTurnDirection: "horizontal" | "vertical"
 }): ViewportPosition => {
   const navigation = getNavigationForLeftSinglePage({

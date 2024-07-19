@@ -8,7 +8,7 @@ import { ReaderSettingsManager } from "../../settings/ReaderSettingsManager"
 import { SpineItemManager } from "../../spineItemManager"
 import { getOrGuessSpineItem } from "./getOrGuessSpineItem"
 import { NavigationResolver } from "../resolvers/NavigationResolver"
-import { SpineLocator } from "../../spine/locationResolver"
+import { SpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
 import { SpineItem } from "../../spineItem/createSpineItem"
 
 type Navigation = {
@@ -30,7 +30,7 @@ export const withOrGuessSpineItem =
     settings: ReaderSettingsManager
     spineItemManager: SpineItemManager
     navigationResolver: NavigationResolver
-    spineLocator: SpineLocator
+    spineLocator: SpineLocationResolver
   }) =>
   (
     stream: Observable<Navigation>,

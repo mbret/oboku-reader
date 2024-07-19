@@ -1,7 +1,7 @@
 import { Context } from "../../context/Context"
 import { ViewportPosition } from "../ViewportNavigator"
 import { getClosestValidOffsetFromApproximateOffsetInPages } from "../../pagination/helpers"
-import { SpineLocator } from "../../spine/locationResolver"
+import { SpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
 import { SpineItem } from "../../spineItem/createSpineItem"
 import { SpineItemManager } from "../../spineItemManager"
 import { getAdjustedPositionForSpread } from "./getAdjustedPositionForSpread"
@@ -38,7 +38,7 @@ const getSpinePositionFromSpineItemAnchor = ({
   anchor: string
   spineItem: SpineItem
   context: Context
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
 }) => {
   const spineItemOffset = getSpineItemOffsetFromAnchor({
     anchor,
@@ -64,7 +64,7 @@ const getNavigationForAnchor = ({
 }: {
   anchor: string
   spineItem: SpineItem
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
   context: Context
   pageSizeWidth: number
   visibleAreaRectWidth: number
@@ -93,7 +93,7 @@ export const getNavigationForUrl = ({
 }: {
   url: string | URL
   spineItemManager: SpineItemManager
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
   context: Context
   pageSizeWidth: number
   visibleAreaRectWidth: number

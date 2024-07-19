@@ -1,6 +1,6 @@
 import { Context } from "../../context/Context"
 import { ReaderSettingsManager } from "../../settings/ReaderSettingsManager"
-import { SpineLocator } from "../../spine/locationResolver"
+import { SpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
 import { SpineItemLocator } from "../../spineItem/locationResolver"
 import { SpineItemManager } from "../../spineItemManager"
 import { InternalNavigationEntry } from "../InternalNavigator"
@@ -16,7 +16,7 @@ const restoreNavigationForScrollingPageTurnMode = ({
   navigationResolver,
 }: {
   spineItemManager: SpineItemManager
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
   settings: ReaderSettingsManager
   navigationResolver: NavigationResolver
   navigation: InternalNavigationEntry
@@ -199,7 +199,7 @@ export const restorePosition = ({
   spineLocator,
   navigationResolver,
 }: {
-  spineLocator: SpineLocator
+  spineLocator: SpineLocationResolver
   settings: ReaderSettingsManager
   navigationResolver: NavigationResolver
   navigation: InternalNavigationEntry

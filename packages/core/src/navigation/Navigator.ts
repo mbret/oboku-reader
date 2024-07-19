@@ -1,7 +1,7 @@
 import { Context } from "../context/Context"
 import { Pagination } from "../pagination/Pagination"
 import { SpineItemManager } from "../spineItemManager"
-import { createSpineLocationResolver } from "../spine/locationResolver"
+import { SpineLocationResolver } from "../spine/resolvers/SpineLocationResolver"
 import { createNavigationResolver } from "./resolvers/NavigationResolver"
 import { BehaviorSubject, combineLatest, merge, of, timer } from "rxjs"
 import {
@@ -13,7 +13,7 @@ import {
   switchMap,
   withLatestFrom,
 } from "rxjs/operators"
-import { createCfiLocator } from "../spine/cfiLocator"
+import { createCfiResolver } from "../cfi/cfiResolver"
 import { Spine } from "../spine/createSpine"
 import { isDefined } from "../utils/isDefined"
 import { ReaderSettingsManager } from "../settings/ReaderSettingsManager"
@@ -39,8 +39,8 @@ export const createViewportNavigator = ({
   pagination: Pagination
   context: Context
   parentElement$: BehaviorSubject<HTMLElement | undefined>
-  cfiLocator: ReturnType<typeof createCfiLocator>
-  spineLocator: ReturnType<typeof createSpineLocationResolver>
+  cfiLocator: ReturnType<typeof createCfiResolver>
+  spineLocator: SpineLocationResolver
   hookManager: HookManager
   spine: Spine
   settings: ReaderSettingsManager

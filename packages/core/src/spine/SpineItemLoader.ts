@@ -12,7 +12,7 @@ import {
 } from "rxjs"
 import { Navigator } from "../navigation/Navigator"
 import { SpineItemManager } from "../spineItemManager"
-import { SpineLocator } from "./locationResolver"
+import { SpineLocationResolver } from "./resolvers/SpineLocationResolver"
 import { Context } from "../context/Context"
 import { Report } from "../report"
 
@@ -26,7 +26,7 @@ export class SpineItemLoader {
     protected context: Context,
     protected navigator: Navigator,
     protected spineItemManager: SpineItemManager,
-    protected spineLocator: SpineLocator,
+    protected spineLocator: SpineLocationResolver,
   ) {
     /**
      * Loading and unloading content has two important issues that need to be considered

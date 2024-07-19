@@ -1,8 +1,8 @@
 import { BehaviorSubject, Observable } from "rxjs"
 import { SpineItem } from "../spineItem/createSpineItem"
 import { createSelection } from "../selection"
-import { createCfiLocator } from "../spine/cfiLocator"
-import { createSpineLocationResolver } from "../spine/locationResolver"
+import { createCfiResolver } from "../cfi/cfiResolver"
+import { SpineLocationResolver } from "../spine/resolvers/SpineLocationResolver"
 import { createSpineItemLocator as createSpineItemLocator } from "../spineItem/locationResolver"
 
 type RequireLayout = boolean
@@ -11,9 +11,8 @@ type ManipulableSpineItemCallback = Parameters<
 >[0]
 type ManipulableSpineItemCallbackPayload =
   Parameters<ManipulableSpineItemCallback>[0]
-type CfiLocator = ReturnType<typeof createCfiLocator>
+type CfiLocator = ReturnType<typeof createCfiResolver>
 type SpineItemLocator = ReturnType<typeof createSpineItemLocator>
-type Locator = ReturnType<typeof createSpineLocationResolver>
 
 type Event = {
   type: `onSelectionChange`
@@ -24,7 +23,7 @@ export type Spine = {
   element$: BehaviorSubject<HTMLElement>
   scrollHeight$: Observable<number>
   getElement: () => HTMLElement | undefined
-  locator: Locator
+  locator: SpineLocationResolver
   spineItemLocator: SpineItemLocator
   cfiLocator: CfiLocator
   layout: () => void

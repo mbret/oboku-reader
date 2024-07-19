@@ -1,4 +1,4 @@
-import { CFI } from "./cfi"
+import { CFI } from "./cfi/cfi"
 import { Manifest } from "./types"
 
 export const createSelection = (

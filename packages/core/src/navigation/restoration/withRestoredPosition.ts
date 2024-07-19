@@ -2,7 +2,7 @@ import { map, Observable } from "rxjs"
 import { InternalNavigationEntry } from "../InternalNavigator"
 import { restorePosition } from "./restorePosition"
 import { ReaderSettingsManager } from "../../settings/ReaderSettingsManager"
-import { SpineLocator } from "../../spine/locationResolver"
+import { SpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
 import { SpineItemManager } from "../../spineItemManager"
 import { NavigationResolver } from "../resolvers/NavigationResolver"
 import { SpineItemLocator } from "../../spineItem/locationResolver"
@@ -21,7 +21,7 @@ export const withRestoredPosition =
     spineItemLocator,
     context,
   }: {
-    spineLocator: SpineLocator
+    spineLocator: SpineLocationResolver
     navigationResolver: NavigationResolver
     spineItemManager: SpineItemManager
     settings: ReaderSettingsManager

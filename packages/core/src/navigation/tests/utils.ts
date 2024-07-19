@@ -4,8 +4,8 @@ import { Context } from "../../context/Context"
 import { HookManager } from "../../hooks/HookManager"
 import { Pagination } from "../../pagination/Pagination"
 import { ReaderSettingsManager } from "../../settings/ReaderSettingsManager"
-import { createCfiLocator } from "../../spine/cfiLocator"
-import { createSpineLocationResolver } from "../../spine/locationResolver"
+import { createCfiResolver } from "../../cfi/cfiResolver"
+import { createSpineLocationResolver } from "../../spine/resolvers/SpineLocationResolver"
 import { createSpineItemLocator } from "../../spineItem/locationResolver"
 import { InternalNavigator } from "../InternalNavigator"
 import { createNavigationResolver } from "../resolvers/NavigationResolver"
@@ -41,7 +41,7 @@ export const createNavigator = () => {
   const viewportState$ = new BehaviorSubject<"free" | "busy">("free")
   const hookManager = new HookManager()
   const spineItemLocator = createSpineItemLocator({ context, settings })
-  const cfiLocator = createCfiLocator({
+  const cfiLocator = createCfiResolver({
     spineItemManager: spineItemManagerMock as any,
     context,
     spineItemLocator,
