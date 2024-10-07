@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 /* eslint-disable no-restricted-globals */
 import { configure } from "@prose-reader/streamer"
-import { streamer } from "./streamer"
+import { swStreamer } from "../reader/streamer/swStreamer.sw"
 
 declare const self: ServiceWorkerGlobalScope
 
@@ -34,4 +34,4 @@ self.addEventListener("activate", function (event) {
   event.waitUntil(self.clients.claim()) // Become available to all pages
 })
 
-self.addEventListener("fetch", streamer.fetchEventListener)
+self.addEventListener("fetch", swStreamer.fetchEventListener)

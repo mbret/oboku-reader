@@ -1,15 +1,13 @@
 import {
   BehaviorSubject,
   Observable,
-  ObservedValueOf,
   combineLatest,
-  combineLatestWith,
   distinctUntilChanged,
   map,
   shareReplay,
   tap,
 } from "rxjs"
-import { getChaptersInfo, trackChapterInfo } from "./chapters"
+import { getChaptersInfo, getTocItemForItem } from "./chapters"
 import {
   EnhancerPaginationInto,
   ExtraPaginationInfo,
@@ -23,7 +21,6 @@ export const mapPaginationInfoToExtendedInfo =
   (reader: ReaderWithProgression) =>
   (
     paginationInfo: PaginationInfo,
-    chaptersInfo: ObservedValueOf<ReturnType<typeof trackChapterInfo>>,
   ): Omit<
     ExtraPaginationInfo,
     | "beginAbsolutePageIndex"
@@ -43,7 +40,10 @@ export const mapPaginationInfoToExtendedInfo =
 
     return {
       ...paginationInfo,
-      beginChapterInfo: beginItem ? chaptersInfo[beginItem.item.id] : undefined,
+      beginChapterInfo: getTocItemForItem(
+        reader,
+        paginationInfo.beginSpineItemIndex,
+      ),
       // chapterIndex: number;
       // pages: number;
       // pageIndexInBook: number;
@@ -55,7 +55,10 @@ export const mapPaginationInfoToExtendedInfo =
       // charOffset: number;
       // serializeString?: string;
       beginSpineItemReadingDirection: beginItem?.readingDirection,
-      endChapterInfo: endItem ? chaptersInfo[endItem.item.id] : undefined,
+      endChapterInfo: getTocItemForItem(
+        reader,
+        paginationInfo.endSpineItemIndex,
+      ),
       endSpineItemReadingDirection: endItem?.readingDirection,
       // spineItemReadingDirection: focusedSpineItem?.getReadingDirection(),
       /**
@@ -82,24 +85,19 @@ export const mapPaginationInfoToExtendedInfo =
   }
 
 export const trackPaginationInfo = (reader: ReaderWithProgression) => {
-  const chaptersInfo$ = trackChapterInfo(reader)
   const totalPages$ = trackTotalPages(reader)
   const currentValue = new BehaviorSubject<EnhancerPaginationInto>({
     ...reader.pagination.getState(),
-    ...mapPaginationInfoToExtendedInfo(reader)(
-      reader.pagination.getState(),
-      getChaptersInfo(reader),
-    ),
+    ...mapPaginationInfoToExtendedInfo(reader)(reader.pagination.getState()),
     beginAbsolutePageIndex: 0,
     endAbsolutePageIndex: 0,
     numberOfTotalPages: 0,
   })
 
   const extandedBasePagination$ = reader.pagination.state$.pipe(
-    combineLatestWith(chaptersInfo$),
-    map(([info, chaptersInfo]) => ({
+    map((info) => ({
       ...info,
-      ...mapPaginationInfoToExtendedInfo(reader)(info, chaptersInfo),
+      ...mapPaginationInfoToExtendedInfo(reader)(info),
     })),
     distinctUntilChanged(isShallowEqual),
   )

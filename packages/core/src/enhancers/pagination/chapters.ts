@@ -1,4 +1,3 @@
-import { map, startWith } from "rxjs"
 import { Reader } from "../../reader"
 import { Manifest } from "@prose-reader/shared"
 
@@ -30,13 +29,12 @@ export type ChapterInfo = {
  * they have not comparable due to possible encoded values
  */
 const buildChaptersInfo = (
-  href: string,
+  item: Manifest['items'][number],
   tocItem: NonNullable<Manifest["nav"]>["toc"],
   manifest: Manifest,
+  spineItemIndex: number,
 ): ChapterInfo | undefined => {
-  const spineItemIndex = manifest.spineItems.findIndex(
-    (item) => item.href === href,
-  )
+  const {href} = item
 
   return tocItem.reduce((acc: ChapterInfo | undefined, tocItem) => {
     const indexOfHash = tocItem.href.indexOf(`#`)
@@ -47,7 +45,6 @@ const buildChaptersInfo = (
       tocItemPathWithoutAnchor.lastIndexOf("/"),
     )
     const hrefWithoutFilename = href.substring(0, href.lastIndexOf("/"))
-
     const hrefIsChapterHref = href.endsWith(tocItemPathWithoutAnchor)
     const hrefIsWithinChapter =
       hrefWithoutFilename !== "" &&
@@ -66,6 +63,14 @@ const buildChaptersInfo = (
      */
     const isPossibleTocItemCandidate = hrefIsChapterHref || hrefIsWithinChapter
 
+    console.log({
+      tocItem,
+      hrefIsChapterHref,
+      hrefWithoutFilename,
+      hrefIsWithinChapter,
+      item
+    })
+
     if (isPossibleTocItemCandidate) {
       const spineItemIndexOfPossibleCandidate = manifest.spineItems.findIndex(
         (item) => item.href === tocItem.href,
@@ -80,7 +85,7 @@ const buildChaptersInfo = (
         path: tocItem.path,
       }
 
-      const subInfo = buildChaptersInfo(href, tocItem.contents, manifest)
+      const subInfo = buildChaptersInfo(href, tocItem.contents, manifest, spineItemIndex)
 
       if (subInfo) {
         return {
@@ -96,37 +101,19 @@ const buildChaptersInfo = (
   }, undefined)
 }
 
-const buildChapterInfoFromSpineItem = (
-  manifest: Manifest,
-  item: Manifest[`spineItems`][number],
-) => {
-  const { href } = item
-
-  return buildChaptersInfo(href, manifest.nav?.toc ?? [], manifest)
-}
-
-export const getChaptersInfo = (
+export const getTocItemForItem = (
   reader: Reader,
-): { [key: string]: ChapterInfo | undefined } => {
-  const manifest = reader.context.manifest
-  const items = reader.spineItemsManager.items
+  spineItemIndex: number | undefined,
+) => {
+  const item = reader.spineItemsManager.get(spineItemIndex)?.item
 
-  if (!manifest) return {}
+  if (spineItemIndex === undefined || !item || !reader.context.manifest)
+    return undefined
 
-  return items.reduce(
-    (acc, { item }) => {
-      return {
-        ...acc,
-        [item.id]: buildChapterInfoFromSpineItem(manifest, item),
-      }
-    },
-    {} as { [key: string]: ChapterInfo | undefined },
-  )
-}
-
-export const trackChapterInfo = (reader: Reader) => {
-  return reader.spineItemsManager.items$.pipe(
-    startWith([]),
-    map(() => getChaptersInfo(reader)),
+  return buildChaptersInfo(
+    item,
+    reader.context.manifest.nav?.toc ?? [],
+    reader.context.manifest,
+    spineItemIndex,
   )
 }

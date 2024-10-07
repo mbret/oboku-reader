@@ -29,6 +29,9 @@ export const attachFrameSrc = ({
       switchMap((frameElement) => {
         const { fetchResource } = settings.values
 
+        // @todo move fetch resource logic into an enhancer and have the core
+        // be just getting an url to attach to the ifram
+
         /**
          * Because of the bug with iframe and sw, we should not use srcdoc and sw together for
          * html document. This is because resources will not pass through SW. IF `fetchResource` is being
